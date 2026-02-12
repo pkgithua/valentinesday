@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be My Valentine</title>
+<style>
+  :root {
+    --pink: #ff8fb1;
+    --soft-pink: #ffd6e8;
+    --lavender: #c7d2ff;
+    --bg1: #ffe6f3;
+    --bg2: #dff2ff;
+    --card: #ffffffdd;
+    --shadow: 0 12px 32px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 20% 20%, var(--bg1), var(--bg2));
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    color: #4a2c3a;
+    overflow: hidden;
+  }
+  .petal-layer, .heart-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .card {
+    position: relative;
+    width: min(420px, 90vw);
+    padding: 28px 24px 32px;
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.8s ease forwards;
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: 1.9rem;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    font-size: 0.98rem;
+    margin-bottom: 18px;
+    color: #6a4a58;
+  }
+  .countdown {
+    display: inline-flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .time-box {
+    background: #fff7fc;
+    border: 1px solid #ffe3f2;
+    border-radius: 14px;
+    padding: 10px 12px;
+    min-width: 70px;
+    box-shadow: 0 6px 14px rgba(255, 143, 177, 0.18);
+  }
+  .time-box .num { font-size: 1.3rem; font-weight: 700; display: block; }
+  .question { font-size: 1.15rem; margin: 10px 0 16px; }
+  .choices {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    position: relative;
+    min-height: 48px;
+  }
+  button {
+    border: none;
+    padding: 12px 18px;
+    font-size: 1rem;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+  }
+  #yesBtn {
+    background: linear-gradient(135deg, #ff8fb1, #ffb3c6);
+    color: #fff;
+  }
+  #yesBtn:hover { transform: translateY(-2px) scale(1.02); }
+  #noBtn {
+    background: #fff0f6;
+    color: #c24b7a;
+    position: relative;
+  }
+  #noBtn.shake { animation: shake 0.4s ease; }
+  .result {
+    margin-top: 18px;
+    font-weight: 700;
+    color: #c2185b;
+    min-height: 20px;
+  }
+  .heart {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #ff6f9c;
+    transform: rotate(45deg);
+    animation: rise 1.6s ease forwards;
+  }
+  .heart::before, .heart::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #ff6f9c;
+    border-radius: 50%;
+  }
+  .heart::before { top: -6px; left: 0; }
+  .heart::after { left: -6px; top: 0; }
+  .petal {
+    position: absolute;
+    width: 14px;
+    height: 18px;
+    background: linear-gradient(135deg, #ff9ec7, #ffc7dd);
+    border-radius: 70% 70% 80% 80%;
+    opacity: 0.8;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(320deg); opacity: 0; }
+  }
+  @keyframes rise {
+    0% { transform: translateY(0) scale(1) rotate(45deg); opacity: 1; }
+    100% { transform: translateY(-120px) scale(0.8) rotate(45deg); opacity: 0; }
+  }
+  @keyframes shake {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-6px, 2px); }
+    40% { transform: translate(6px, -2px); }
+    60% { transform: translate(-5px, 3px); }
+    80% { transform: translate(5px, -3px); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="petal-layer" id="petalLayer"></div>
+<div class="heart-layer" id="heartLayer"></div>
+
+<main class="card" aria-live="polite">
+  <h1>Be Mine Forever</h1>
+  <p class="subtitle">Soft vibes, sweet hearts, and a playful little game.</p>
+
+  <section class="countdown" id="countdown"></section>
+
+  <div class="question">Will you be my Valentine? 💘</div>
+  <div class="choices">
+    <button id="yesBtn" aria-label="Yes, be your Valentine">YES 💖</button>
+    <button id="noBtn" aria-label="No" type="button">NO 🙃</button>
+  </div>
+  <div class="result" id="result"></div>
+</main>
+
+<script>
+(() => {
+  const countdownEl = document.getElementById('countdown');
+  const petalLayer = document.getElementById('petalLayer');
+  const heartLayer = document.getElementById('heartLayer');
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const resultEl = document.getElementById('result');
+  let noOffset = { x: 0, y: 0 };
+
+  const pad = n => n.toString().padStart(2, '0');
+
+  // Return Date for upcoming Valentine’s Day or null if today is Feb 14
+  function getValentineDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const valentines = new Date(year, 1, 14, 0, 0, 0);
+    if (now >= valentines) return null; // already Valentine’s Day
+    return valentines;
+  }
+
+  // Render live countdown or show the Valentine’s Day message
+  function renderCountdown() {
+    const target = getValentineDate();
+    countdownEl.innerHTML = '';
+    if (!target) {
+      countdownEl.textContent = "It's already Valentine’s Day ❤️";
+      return;
+    }
+    const now = new Date();
+    const diff = target - now;
+    const sec = Math.floor(diff / 1000);
+    const days = Math.floor(sec / 86400);
+    const hours = Math.floor((sec % 86400) / 3600);
+    const minutes = Math.floor((sec % 3600) / 60);
+    const seconds = sec % 60;
+
+    const parts = [
+      { label: 'Days', value: days },
+      { label: 'Hours', value: hours },
+      { label: 'Minutes', value: minutes },
+      { label: 'Seconds', value: seconds }
+    ];
+    parts.forEach(p => {
+      const box = document.createElement('div');
+      box.className = 'time-box';
+      box.innerHTML = `<span class="num">${pad(p.value)}</span><span>${p.label}</span>`;
+      countdownEl.appendChild(box);
+    });
+  }
+  renderCountdown();
+  setInterval(renderCountdown, 1000);
+
+  // Spawn a single rose petal with random properties
+  function spawnPetal() {
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    const left = Math.random() * 100;
+    const duration = 6 + Math.random() * 6;
+    const delay = Math.random() * 2;
+    const size = 12 + Math.random() * 8;
+    petal.style.left = `${left}vw`;
+    petal.style.animationDuration = `${duration}s`;
+    petal.style.animationDelay = `${delay}s`;
+    petal.style.width = `${size}px`;
+    petal.style.height = `${size + 4}px`;
+    petalLayer.appendChild(petal);
+    petal.addEventListener('animationend', () => petal.remove());
+  }
+  // Initial petals and continuous flow
+  for (let i = 0; i < 16; i++) spawnPetal();
+  setInterval(spawnPetal, 800);
+
+  // Hearts burst when YES is clicked
+  function spawnHearts(count = 18) {
+    const rect = yesBtn.getBoundingClientRect();
+    for (let i = 0; i < count; i++) {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      const x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 50;
+      const y = rect.top + (Math.random() * 10);
+      heart.style.left = `${x}px`;
+      heart.style.top = `${y}px`;
+      heart.style.opacity = 1;
+      heart.style.animationDuration = `${1.2 + Math.random() * 0.8}s`;
+      heartLayer.appendChild(heart);
+      heart.addEventListener('animationend', () => heart.remove());
+    }
+  }
+
+  // Playful NO button that dodges clicks
+  function moveNoButton() {
+    noBtn.classList.add('shake');
+    setTimeout(() => noBtn.classList.remove('shake'), 400);
+
+    const rect = noBtn.getBoundingClientRect();
+    const maxLeft = window.innerWidth - rect.width - 12 - rect.left;
+    const minLeft = -(rect.left - 12);
+    const maxTop = window.innerHeight - rect.height - 12 - rect.top;
+    const minTop = -(rect.top - 12);
+
+    const offsetX = (Math.random() - 0.5) * 160;
+    const offsetY = (Math.random() - 0.5) * 120;
+
+    noOffset.x = Math.min(Math.max(noOffset.x + offsetX, minLeft), maxLeft);
+    noOffset.y = Math.min(Math.max(noOffset.y + offsetY, minTop), maxTop);
+
+    noBtn.style.transform = `translate(${noOffset.x}px, ${noOffset.y}px)`;
+  }
+
+  yesBtn.addEventListener('click', () => {
+    resultEl.textContent = "Yay! You’re my Valentine 😍";
+    spawnHearts();
+  });
+
+  ['mouseenter', 'click', 'touchstart'].forEach(evt => {
+    noBtn.addEventListener(evt, e => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+  });
+})();
+</script>
+</body>
+</html>
