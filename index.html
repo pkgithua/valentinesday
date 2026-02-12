@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -241,15 +241,15 @@
   <section class="countdown" id="countdown"></section>
 
   <section class="carousel" aria-label="Sweet memories">
-    <button class="carousel-btn prev" id="prevSlide" aria-label="Previous photos">ΓÇ╣</button>
+    <button class="carousel-btn prev" id="prevSlide" aria-label="Previous photos">?�?</button>
     <div class="carousel-track" id="carouselTrack"></div>
-    <button class="carousel-btn next" id="nextSlide" aria-label="Next photos">ΓÇ║</button>
+    <button class="carousel-btn next" id="nextSlide" aria-label="Next photos">?�?</button>
   </section>
 
-  <div class="question">Will you be my Valentine? ≡ƒÆÿ</div>
+  <div class="question">Will you be my Valentine? ??��</div>
   <div class="choices">
-    <button id="yesBtn" aria-label="Yes, be your Valentine">YES ≡ƒÆû</button>
-    <button id="noBtn" aria-label="No" type="button">NO ≡ƒÖâ</button>
+    <button id="yesBtn" aria-label="Yes, be your Valentine">YES ??��</button>
+    <button id="noBtn" aria-label="No" type="button">NO ??��</button>
   </div>
   <div class="result" id="result"></div>
 </main>
@@ -322,21 +322,21 @@
   prevSlideBtn.addEventListener('click', () => updateSlide(currentSlide - 1));
   nextSlideBtn.addEventListener('click', () => updateSlide(currentSlide + 1));
 
-  // Return Date for upcoming ValentineΓÇÖs Day or null if today is Feb 14
+  // Return Date for upcoming Valentine's Day or null if today is Feb 14
   function getValentineDate() {
     const now = new Date();
     const year = now.getFullYear();
     const valentines = new Date(year, 1, 14, 0, 0, 0);
-    if (now >= valentines) return null; // already ValentineΓÇÖs Day
+    if (now >= valentines) return null; // already Valentine's Day
     return valentines;
   }
 
-  // Render live countdown or show the ValentineΓÇÖs Day message
+  // Render live countdown or show the Valentine's Day message
   function renderCountdown() {
     const target = getValentineDate();
     countdownEl.innerHTML = '';
     if (!target) {
-      countdownEl.textContent = "It's already ValentineΓÇÖs Day Γ¥ñ∩╕Å";
+      countdownEl.textContent = "It's already Valentine's Day!";
       return;
     }
     const now = new Date();
@@ -455,7 +455,7 @@
   }
 
   yesBtn.addEventListener('click', () => {
-    resultEl.textContent = "Yay! YouΓÇÖre my Valentine ≡ƒÿì";
+    resultEl.textContent = "Yay! You're my Valentine!";
     spawnHearts();
     spawnFireworks();
   });
